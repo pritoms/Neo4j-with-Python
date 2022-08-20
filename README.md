@@ -1,492 +1,67 @@
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+# Building Neo4j Applications with Python
 
-<title>neo4j by GraphAcademy</title><script
-    src="/voila/static/require.min.js"
-    integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA="
-    crossorigin="anonymous">
-  </script>
-  <!-- voila log js -->
-  <script>
-    const _debug = console.debug;
-    const _info = console.info;
-    const _warn = console.warn;
-    const _error = console.error;
+## Project Setup
 
-    function post(level, args) {
-      try {
-        window.top.postMessage({ level: "debug", msg: ["[Voilà]:", ...args] });
-      } catch(err) {
-        window.top.postMessage({ level: "debug", msg: ["[Voilà]:",
-                                                       "Issue cloning object when posting log message, JSON stringify version is:",
-                                                       JSON.stringify(args)
-                                                       ] });
-      }
-    }
-    console.debug = (...args) => {
-        post({ level: "debug", msg: ["[Voilà]:", ...args] });
-        _debug(...args);
-    };
+As part of this course, you will work on a pre-built repository(https://github.com/neo4j-graphacademy/app-python) for the fictional client **Neoflix**. The course is designed to be framework agnostic, so although we have chosen a specific framework, the tasks that you will perform will be the same regardless of your choice of framework.
 
-    console.info = console.info = (...args) => {
-        post({ level: "info", msg: ["[Voilà]:", ...args] });
-        _info(...args);
-    };
+In the early stages you will learn some of the theory required and then use that knowledge to implement a set of features in the API.
 
-    console.warn = (...args) => {
-        post({ level: "warn", msg: ["[Voilà]:", ...args] });
-        _warn(...args);
-    };
+### Repository Information
 
-    console.error = (...args) => {
-        post({ level: "error", msg: ["[Voilà]:", ...args] });
-        _error(...args);
-    };
-  </script>
+We have built a repository that takes care of the boiler plate, so you can focus on implementing the functionality
 
+- The project is designed to work with Python version 3.9
+- Packages can be installed with pip
+- A web server has been built with <a href="https://flask.palletsprojects.com/en/2.0.x/" target="_blank" rel="noopener">Flask</a>
+    - Authentication is handled with <a href="https://jwt.io/" target="_blank" rel="noopener">JWT Tokens</a> and <a href="https://pyjwt.readthedocs.io/en/latest/" target="_blank" rel="noopener">PyJWT</a>
+    - Passwords are encrypted and verified with <a href="https://github.com/pyca/bcrypt/" target="_blank" rel="noopener">bcrypt</a>
+    - Testing is performed using <a href="https://pytest.org/" target="_blank" rel="noopener">pytest</a>
 
+## Setup Python
 
+If you haven’t already installed Python, you must **install** *Python3* using the instructions on www.python.org. The project has been written to work wth Python version *v3.9.9*.
 
+You can verify that the installation is successful by running the following command in the command line:
 
+Verify Python Version
 
-<style type="text/css">
-    pre { line-height: 125%; }
-td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
-span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
-td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
-span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
-.highlight .hll { background-color: var(--jp-cell-editor-active-background) }
-.highlight { background: var(--jp-cell-editor-background); color: var(--jp-mirror-editor-variable-color) }
-.highlight .c { color: var(--jp-mirror-editor-comment-color); font-style: italic } /* Comment */
-.highlight .err { color: var(--jp-mirror-editor-error-color) } /* Error */
-.highlight .k { color: var(--jp-mirror-editor-keyword-color); font-weight: bold } /* Keyword */
-.highlight .o { color: var(--jp-mirror-editor-operator-color); font-weight: bold } /* Operator */
-.highlight .p { color: var(--jp-mirror-editor-punctuation-color) } /* Punctuation */
-.highlight .ch { color: var(--jp-mirror-editor-comment-color); font-style: italic } /* Comment.Hashbang */
-.highlight .cm { color: var(--jp-mirror-editor-comment-color); font-style: italic } /* Comment.Multiline */
-.highlight .cp { color: var(--jp-mirror-editor-comment-color); font-style: italic } /* Comment.Preproc */
-.highlight .cpf { color: var(--jp-mirror-editor-comment-color); font-style: italic } /* Comment.PreprocFile */
-.highlight .c1 { color: var(--jp-mirror-editor-comment-color); font-style: italic } /* Comment.Single */
-.highlight .cs { color: var(--jp-mirror-editor-comment-color); font-style: italic } /* Comment.Special */
-.highlight .kc { color: var(--jp-mirror-editor-keyword-color); font-weight: bold } /* Keyword.Constant */
-.highlight .kd { color: var(--jp-mirror-editor-keyword-color); font-weight: bold } /* Keyword.Declaration */
-.highlight .kn { color: var(--jp-mirror-editor-keyword-color); font-weight: bold } /* Keyword.Namespace */
-.highlight .kp { color: var(--jp-mirror-editor-keyword-color); font-weight: bold } /* Keyword.Pseudo */
-.highlight .kr { color: var(--jp-mirror-editor-keyword-color); font-weight: bold } /* Keyword.Reserved */
-.highlight .kt { color: var(--jp-mirror-editor-keyword-color); font-weight: bold } /* Keyword.Type */
-.highlight .m { color: var(--jp-mirror-editor-number-color) } /* Literal.Number */
-.highlight .s { color: var(--jp-mirror-editor-string-color) } /* Literal.String */
-.highlight .ow { color: var(--jp-mirror-editor-operator-color); font-weight: bold } /* Operator.Word */
-.highlight .w { color: var(--jp-mirror-editor-variable-color) } /* Text.Whitespace */
-.highlight .mb { color: var(--jp-mirror-editor-number-color) } /* Literal.Number.Bin */
-.highlight .mf { color: var(--jp-mirror-editor-number-color) } /* Literal.Number.Float */
-.highlight .mh { color: var(--jp-mirror-editor-number-color) } /* Literal.Number.Hex */
-.highlight .mi { color: var(--jp-mirror-editor-number-color) } /* Literal.Number.Integer */
-.highlight .mo { color: var(--jp-mirror-editor-number-color) } /* Literal.Number.Oct */
-.highlight .sa { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Affix */
-.highlight .sb { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Backtick */
-.highlight .sc { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Char */
-.highlight .dl { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Delimiter */
-.highlight .sd { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Doc */
-.highlight .s2 { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Double */
-.highlight .se { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Escape */
-.highlight .sh { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Heredoc */
-.highlight .si { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Interpol */
-.highlight .sx { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Other */
-.highlight .sr { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Regex */
-.highlight .s1 { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Single */
-.highlight .ss { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Symbol */
-.highlight .il { color: var(--jp-mirror-editor-number-color) } /* Literal.Number.Integer.Long */
-  </style>
+```bash
+python --version
+```
 
+### Clone the Repository
 
+To clone the repository without logging in via HTTPS, you can run the following command to clone the repository:
 
-<link rel="stylesheet" type="text/css" href="/voila/templates/lab/static/index.css?v=0cafa950773a3628d1e570a8345f714642735deb33894cbfa05ca44b6144a734731910fb7bf1f92dcb8187472657f67c6d6cfedf1d80d0bd53398f6b61a0760f">
+```bash
+git clone https://github.com/neo4j-graphacademy/app-python.git
+```
 
-    <link rel="stylesheet" type="text/css" href="/voila/templates/lab/static/theme-light.css?v=d89d301f3a7604950979af8745af5ca08279fd234f07b2fb795a449d326681d8b4b0d239af551128f2131970c5b5c4bd4fd1bdc3d033bf39241b0f6f90e6bd9c">
+### Set up a new Environment
 
-<style type="text/css">
-/* Misc */
-a.anchor-link {
-  display: none;
-}
+To create a virtual environment named sandbox, you can run the following:
 
-.highlight  {
-  margin: 0.4em;
-}
+```bash
+python -m venv sandbox
+```
 
-/* Input area styling */
-.jp-InputArea {
-  overflow: hidden;
-}
+To activate the virtual enviroment named sandbox, you can run the following:
 
-.jp-InputArea-editor {
-  overflow: hidden;
-}
+```sh
+source sandbox/bin/activate
+```
 
-.CodeMirror pre {
-  margin: 0;
-  padding: 0;
-}
+## Install Dependencies
 
-/* Using table instead of flexbox so that we can use break-inside property */
-/* CSS rules under this comment should not be required anymore after we move to the JupyterLab 4.0 CSS */
+Once you have cloned the repository, navigate to the folder in your terminal and run the following command to install the dependencies.
 
+```sh
+pip install -r requirements.txt
+```
 
-.jp-CodeCell.jp-mod-outputsScrolled .jp-OutputArea-prompt {
-  min-width: calc(
-    var(--jp-cell-prompt-width) - var(--jp-private-cell-scrolling-output-offset)
-  );
-}
+$ `requirements.txt`
 
-.jp-OutputArea-child {
-  display: table;
-  width: 100%;
-}
-
-.jp-OutputPrompt {
-  display: table-cell;
-  vertical-align: top;
-  min-width: var(--jp-cell-prompt-width);
-}
-
-body[data-format='mobile'] .jp-OutputPrompt {
-  display: table-row;
-}
-
-.jp-OutputArea-output {
-  display: table-cell;
-  width: 100%;
-}
-
-body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
-  display: table-row;
-}
-
-.jp-OutputArea-output.jp-OutputArea-executeResult {
-  width: 100%;
-}
-
-@media print {
-  .jp-Collapser {
-    display: none;
-  }
-
-  .jp-Cell-inputWrapper,
-  .jp-Cell-outputWrapper {
-    display: block;
-  }
-
-  .jp-OutputArea-child {
-    break-inside: avoid-page;
-  }
-}
-</style>
-
-<!-- Load mathjax -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML-full,Safe"> </script>
-    <!-- MathJax configuration -->
-    <script type="text/x-mathjax-config">
-    init_mathjax = function() {
-        if (window.MathJax) {
-        // MathJax loaded
-            MathJax.Hub.Config({
-                TeX: {
-                    equationNumbers: {
-                    autoNumber: "AMS",
-                    useLabelIds: true
-                    }
-                },
-                tex2jax: {
-                    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-                    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-                    processEscapes: true,
-                    processEnvironments: true
-                },
-                displayAlign: 'center',
-                CommonHTML: {
-                    linebreaks: { 
-                    automatic: true 
-                    }
-                }
-            });
-        
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-        }
-    }
-    init_mathjax();
-    </script>
-    <!-- End of mathjax configuration --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@^5/css/all.min.css" type="text/css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@^5/css/v4-shims.min.css" type="text/css" />
-
-
-  <!-- voila spinner -->
-  <style>
-    #loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 75vh;
-        color: var(--jp-content-font-color1);
-        font-family: sans-serif;
-    }
-
-    .spinner {
-      animation: rotation 2s infinite linear;
-      transform-origin: 50% 50%;
-    }
-
-    .spinner-container {
-      width: 10%;
-    }
-
-    @keyframes rotation {
-      from {transform: rotate(0deg);}
-      to   {transform: rotate(359deg);}
-    }
-
-    .voila-spinner-color1{
-      fill:#268380;
-    }
-
-    .voila-spinner-color2{
-      fill:#f8e14b;
-    }
-  </style>
-
-  <style>
-    /*Hide empty cells*/
-    .jp-mod-noOutputs.jp-mod-noInput {
-      display: none;
-    }
-  </style></head>
-<body class="jp-Notebook theme-light" data-base-url="/voila/">
-
-
-  <div id="loading">
-    <div class="spinner-container">
-      <svg class="spinner" data-name="c1" version="1.1" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><metadata><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/><dc:title>voila</dc:title></cc:Work></rdf:RDF></metadata><title>spin</title><path class="voila-spinner-color1" d="m250 405c-85.47 0-155-69.53-155-155s69.53-155 155-155 155 69.53 155 155-69.53 155-155 155zm0-275.5a120.5 120.5 0 1 0 120.5 120.5 120.6 120.6 0 0 0-120.5-120.5z"/><path class="voila-spinner-color2" d="m250 405c-85.47 0-155-69.53-155-155a17.26 17.26 0 1 1 34.51 0 120.6 120.6 0 0 0 120.5 120.5 17.26 17.26 0 1 1 0 34.51z"/></svg>
-    </div>
-    <h2 id="loading_text">Running ...</h2>
-  </div>
-
-<script>
-var voila_process = function(cell_index, cell_count) {
-  var el = document.getElementById("loading_text")
-  el.innerHTML = `Executing ${cell_index} of ${cell_count}`
-}
-var voila_heartbeat = function() {
-  console.log('Ok, voila is still executing...')
-}
-</script>
-<div id="rendered_cells" style="display: none"><script id="jupyter-config-data" type="application/json">
-    {
-        "baseUrl": "/",
-        "kernelId": "2d067f0e-e588-4a03-b6d1-b5d46a6eb9b0"
-    }
-    </script>
-    
-    <script>
-        voila_process(1, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Building-Neo4j-Applications-with-Python">Building Neo4j Applications with Python<a class="anchor-link" href="#Building-Neo4j-Applications-with-Python">&#182;</a></h1>
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(2, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Project-Setup">Project Setup<a class="anchor-link" href="#Project-Setup">&#182;</a></h2><p>As part of this course, you will work on a pre-built repository(<a href="https://github.com/neo4j-graphacademy/app-python">https://github.com/neo4j-graphacademy/app-python</a>) for the fictional client <strong>Neoflix</strong>. The course is designed to be framework agnostic, so although we have chosen a specific framework, the tasks that you will perform will be the same regardless of your choice of framework.</p>
-<p>In the early stages you will learn some of the theory required and then use that knowledge to implement a set of features in the API.</p>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(3, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Repository-Information">Repository Information<a class="anchor-link" href="#Repository-Information">&#182;</a></h3><p>We have built a repository that takes care of the boiler plate, so you can focus on implementing the functionality</p>
-<ul>
-<li>The project is designed to work with Python version 3.9</li>
-<li>Packages can be installed with pip</li>
-<li>A web server has been built with <a href="https://flask.palletsprojects.com/en/2.0.x/" target="_blank" rel="noopener">Flask</a><ul>
-<li>Authentication is handled with <a href="https://jwt.io/" target="_blank" rel="noopener">JWT Tokens</a> and <a href="https://pyjwt.readthedocs.io/en/latest/" target="_blank" rel="noopener">PyJWT</a></li>
-<li>Passwords are encrypted and verified with <a href="https://github.com/pyca/bcrypt/" target="_blank" rel="noopener">bcrypt</a></li>
-<li>Testing is performed using <a href="https://pytest.org/" target="_blank" rel="noopener">pytest</a></li>
-</ul>
-</li>
-</ul>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(4, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Setup-Python">Setup Python<a class="anchor-link" href="#Setup-Python">&#182;</a></h2><p>If you haven’t already installed Python, you must <strong>install</strong> <em>Python3</em> using the instructions on www.python.org. The project has been written to work wth Python version <em>v3.9.9</em>.</p>
-<p>You can verify that the installation is successful by running the following command in the command line:</p>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(5, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Verify Python Version</p>
-<div class="highlight"><pre><span></span>python --version
-</pre></div>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(6, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Clone-the-Repository">Clone the Repository<a class="anchor-link" href="#Clone-the-Repository">&#182;</a></h3><p>To clone the repository without logging in via HTTPS, you can run the following command to clone the repository:</p>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(7, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span>git clone https://github.com/neo4j-graphacademy/app-python.git
-</pre></div>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(8, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Set-up-a-new-Environment">Set up a new Environment<a class="anchor-link" href="#Set-up-a-new-Environment">&#182;</a></h3><p>To create a virtual environment named sandbox, you can run the following:</p>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(9, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span>python -m venv sandbox
-</pre></div>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(10, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>To activate the virtual enviroment named sandbox, you can run the following:</p>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(11, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="nb">source</span> sandbox/bin/activate
-</pre></div>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(12, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Install-Dependencies">Install Dependencies<a class="anchor-link" href="#Install-Dependencies">&#182;</a></h2><p>Once you have cloned the repository, navigate to the folder in your terminal and run the following command to install the dependencies.</p>
-<div class="highlight"><pre><span></span>pip install -r requirements.txt
-</pre></div>
-
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(13, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>$ <code>requirements.txt</code></p>
-
-<pre><code>txt
+```txt
 attrs==21.2.0
 autopep8==1.6.0
 backports.entry-points-selectable==1.1.1
@@ -525,66 +100,22 @@ toml==0.10.2
 urllib3==1.26.7
 virtualenv==20.10.0
 Werkzeug==2.0.2
-yarg==0.1.9</code></pre>
+yarg==0.1.9
+```
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(14, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Setting-Environment-Variables">Setting Environment Variables<a class="anchor-link" href="#Setting-Environment-Variables">&#182;</a></h3><p>This project will read environment variables from the <code>.env</code> file located in the project root.</p>
-<p>The project contains an example file at <code>.env.example</code>. You can run the following command in your terminal window to copy the example file to <code>.env</code>.</p>
+### Setting Environment Variables
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(15, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span>cp .env.example .env
-</pre></div>
+This project will read environment variables from the `.env` file located in the project root.
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(16, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Your <code>.env</code> file should have the following settings:</p>
+The project contains an example file at `.env.example`. You can run the following command in your terminal window to copy the example file to `.env`.
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(17, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+```sh
+cp .env.example .env
+```
 
-<pre><code>env
+Your `.env` file should have the following settings:
+
+```env
 FLASK_APP=api                       # (1)
 FLASK_ENV=development               # (2)
 FLASK_RUN_PORT=3000                 # (3)
@@ -593,151 +124,51 @@ SALT_ROUNDS=10                      # (5)
 
 NEO4J_URI=neo4j://localhost:7687    # (6)
 NEO4J_USERNAME=neo4j                # (7)
-NEO4J_PASSWORD=password             # (8)</code></pre>
+NEO4J_PASSWORD=password             # (8)
+```
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(18, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<ul>
-<li><code>FLASK_APP</code> tells Flask to use the application in the <code>api/</code> folder</li>
-<li>Run Flask in Development Mode</li>
-<li>Run the server on port <code>3000</code></li>
-<li>A secret key for signing JWT tokens - <em>This can be a random string of letters and numbers</em></li>
-<li>The cost parameter used when hashing passwords</li>
-<li>The URI for your Neo4j Sandbox instance, we will set this in the next lesson</li>
-<li>The username for your Neo4j Sandbox instance</li>
-<li>The password for your Neo4j Sandbox instance</li>
-</ul>
+- `FLASK_APP` tells Flask to use the application in the `api/` folder
+- Run Flask in Development Mode
+- Run the server on port `3000`
+- A secret key for signing JWT tokens - *This can be a random string of letters and numbers*
+- The cost parameter used when hashing passwords
+- The URI for your Neo4j Sandbox instance, we will set this in the next lesson
+- The username for your Neo4j Sandbox instance
+- The password for your Neo4j Sandbox instance
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(19, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Start-the-Project">Start the Project<a class="anchor-link" href="#Start-the-Project">&#182;</a></h3><p>To <strong>start the project</strong>, run the following command:</p>
-<div class="highlight"><pre><span></span>flask run
-</pre></div>
+### Start the Project
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(20, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>You should see an output similar to the following confirming that the server has successfully started:</p>
+To **start the project**, run the following command:
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(21, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span>* Serving Flask app <span class="s1">&#39;api&#39;</span> <span class="o">(</span>lazy loading<span class="o">)</span>
+```sh
+flask run
+```
+
+You should see an output similar to the following confirming that the server has successfully started:
+
+```bash
+* Serving Flask app 'api' (lazy loading)
 * Environment: development
 * Debug mode: on
-* Running on http://127.0.0.1:53000/ <span class="o">(</span>Press CTRL+C to quit<span class="o">)</span>
+* Running on http://127.0.0.1:53000/ (Press CTRL+C to quit)
 * Restarting with stat
 * Debugger is active!
-* Debugger PIN: <span class="m">566</span>-751-036
-</pre></div>
+* Debugger PIN: 566-751-036
+```
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(22, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>The REST API will listen for requests on <a href="http://localhost:3000">http://localhost:3000</a>.</p>
+The REST API will listen for requests on http://localhost:3000.
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(23, 24)
-      </script>
-        
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="A-Brief-Tour-of-the-Project">A Brief Tour of the Project<a class="anchor-link" href="#A-Brief-Tour-of-the-Project">&#182;</a></h3><p>If you open up the listening address in your browser, you will see a Single Page Application (SPA) that communicates with the API served at <a href="http://localhost:3000/api">http://localhost:3000/api</a>. Currently, the responses are hardcoded, but as you progress through the course, you will learn how to query Neo4j to find this information.</p>
-<p>Here are some of the important directories in the project:</p>
-<ul>
-<li><code>example/</code> - Example code for working with the driver.</li>
-<li><code>api/</code> - The application code:<ul>
-<li><code>dao/</code> - Data Access Objects which will be modified to communicate with Neo4j</li>
-<li><code>middleware/</code> - Some custom middleware functions that are used by Flask throughout the request lifecycle</li>
-<li><code>routes/</code> - Route handlers that are registered on the server. You shouldn’t need to edit these files.
--<code>public/</code> - Minified build files for the SPA. <strong>Do not edit these files.</strong></li>
-</ul>
-</li>
-</ul>
+### A Brief Tour of the Project
 
-</div>
-</div>
-</div>
-</div><script>
-        voila_process(24, 24)
-      </script>
-        <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput ">
+If you open up the listening address in your browser, you will see a Single Page Application (SPA) that communicates with the API served at http://localhost:3000/api. Currently, the responses are hardcoded, but as you progress through the course, you will learn how to query Neo4j to find this information.
 
-</div></div>
-<script type="text/javascript">
-  (function() {
-    // remove the loading element
-    var el = document.getElementById("loading")
-    el.parentNode.removeChild(el)
-    // show the cell output
-    el = document.getElementById("rendered_cells")
-    el.style.display = 'unset'
-  })();
-</script>
-<script>
-  requirejs.config({ baseUrl: '/voila/', waitSeconds: 30});
-  window.voila_js_url = "/voila/templates/lab/static/voila.js?v=71f4d4c8cb842740eb7d318f4514d363eb3fb79755535ccc9aea4ddba30cd7b30d9793b2f168bb6ec366ba8b0b1b17a8a94fb48871ff9e7f3a305acf997d9531";
-  requirejs(["/voila/templates/lab/static/main.js?v=bee1f6a179b3aae9e706f72b6afdc596d73215ad09b56bf79494205e1fa3f9e58ac45d21e0fdad7fa8f02cd96c5369b28efd6db188070bbbce8993c859b02a3a"]);
+Here are some of the important directories in the project:
 
-  // Loading classic notebook extensions.
-  
-</script>
-
-</body>
+- `example/` - Example code for working with the driver.
+- `api/` - The application code:
+    - `dao/` - Data Access Objects which will be modified to communicate with Neo4j
+    - `middleware/` - Some custom middleware functions that are used by Flask throughout the request lifecycle
+    - `routes/` - Route handlers that are registered on the server. You shouldn’t need to edit these files.
+-`public/` - Minified build files for the SPA. **Do not edit these files.**
 
 
-
-</html>
